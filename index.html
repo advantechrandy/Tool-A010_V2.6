@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工業常用單位轉換</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
+        
+        body {
+            background-color: #1a1a1a;
+            background-image: 
+                radial-gradient(#333 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #e0e0e0;
+            font-family: 'Share Tech Mono', 'Microsoft JhengHei', monospace;
+        }
+
+        .industrial-panel {
+            background: linear-gradient(145deg, #2a2a2a, #151515);
+            border: 2px solid #333;
+            border-top: 4px solid #f59e0b; /* 警示橘線 */
+            box-shadow: 10px 10px 20px #0d0d0d, -5px -5px 15px #262626;
+        }
+
+        .tab-active {
+            background-color: #f59e0b;
+            color: #000;
+            clip-path: polygon(0% 0%, 90% 0%, 100% 100%, 0% 100%);
+            font-weight: bold;
+        }
+
+        .lcd-display {
+            background-color: #0c1a0c;
+            border: 3px inset #333;
+            color: #00ff41;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        input, select {
+            background-color: #222 !important;
+            border: 1px solid #444 !important;
+            color: #f59e0b !important;
+        }
+
+        input:focus, select:focus {
+            border-color: #f59e0b !important;
+            outline: none;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+        }
+
+        /* 隱藏捲軸 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+        <header class="mb-10 flex flex-col items-center">
+            <div class="bg-black px-6 py-2 border-l-4 border-r-4 border-yellow-500 mb-2">
+                <h1 class="text-2xl md:text-4xl font-black tracking-tighter text-yellow-500 uppercase">
+                    Industry Unit Converter v2.5
+                </h1>
+            </div>
+            <p class="text-xs tracking-[0.3em] text-gray-500 uppercase">System Status: Operational // Live Calculation Mode</p>
+        </header>
+
+        <!-- 類別切換導覽 -->
+        <nav class="flex overflow-x-auto no-scrollbar gap-1 mb-0 px-2">
+            <button onclick="switchCategory('heat')" id="tab-heat" class="px-6 py-2 text-sm whitespace-nowrap transition-all tab-active">熱量 ENERGY</button>
+            <button onclick="switchCategory('power')" id="tab-power" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">功率 POWER</button>
+            <button onclick="switchCategory('pressure')" id="tab-pressure" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">壓力 PRESS</button>
+            <button onclick="switchCategory('force')" id="tab-force" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">力量 FORCE</button>
+            <button onclick="switchCategory('thermal')" id="tab-thermal" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">導熱係數K</button>
+            <button onclick="switchCategory('flow')" id="tab-flow" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">流量 FLOW</button>
+            <button onclick="switchCategory('volume')" id="tab-volume" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">體積 VOL</button>
+            <button onclick="switchCategory('weight')" id="tab-weight" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">重量 MASS</button>
+            <button onclick="switchCategory('length')" id="tab-length" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">長度 LEN</button>
+        </nav>
+
+        <main class="industrial-panel p-6 md:p-10 relative overflow-hidden">
+            <!-- 裝飾用網格線 -->
+            <div class="absolute top-0 right-0 p-2 opacity-20 pointer-events-none">
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                    <path d="M0 0 L100 0 L100 100" fill="none" stroke="white" stroke-width="0.5"/>
+                    <circle cx="95" cy="5" r="2" fill="white"/>
+                </svg>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <!-- 輸入區域 -->
+                <div class="flex flex-col space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Input Parameters</label>
+                        <div class="relative">
+                            <input type="number" id="inputValue" placeholder="0.00" value="1" 
+                                   class="w-full px-4 py-4 rounded bg-black text-2xl font-bold"
+                                   oninput="convert()">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Source Unit</label>
+                        <select id="fromUnit" class="w-full px-4 py-3 rounded cursor-pointer appearance-none"
+                                onchange="convert()">
+                            <!-- 動態填充 -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 輸出區域 -->
+                <div class="flex flex-col space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">System Output</label>
+                        <div id="resultDisplay" class="lcd-display w-full px-4 py-4 rounded text-3xl font-bold min-h-[72px] flex items-center justify-end overflow-x-auto no-scrollbar">
+                            0
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Target Unit</label>
+                        <select id="toUnit" class="w-full px-4 py-3 rounded cursor-pointer appearance-none"
+                                onchange="convert()">
+                            <!-- 動態填充 -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部裝飾線 -->
+            <div class="mt-8 pt-6 border-t border-[#333] flex justify-between items-center opacity-50">
+                <div class="text-[10px] tracking-tighter">Created by Randy Chen</div>
+                <div class="flex gap-1">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <div class="w-2 h-2 bg-gray-700 rounded-full"></div>
+                    <div class="w-2 h-2 bg-gray-700 rounded-full"></div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-8 flex justify-between items-center text-[10px] text-gray-600 uppercase tracking-widest px-4">
+            <div>Auth: Thermal0906</div>
+            <div>Ref: ISO-9001-STND</div>
+            <div>Log: 0x8823_CONV</div>
+        </footer>
+    </div>
+
+    <script>
+        // 阻擋右鍵選單
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        }, false);
+
+        const unitData = {
+            heat: {
+                units: {
+                    "焦耳 (J)": 1,
+                    "千焦耳 (kJ)": 1000,
+                    "卡路里 (cal)": 4.184,
+                    "千卡 (kcal)": 4184,
+                    "英熱單位 (BTU)": 1055.06,
+                    "瓦特小時 (Wh)": 3600,
+                    "千瓦小時 (kWh)": 3600000
+                }
+            },
+            power: {
+                units: {
+                    "瓦特 (W)": 1,
+                    "千瓦 (kW)": 1000,
+                    "馬力 (hp)": 745.7,
+                    "公制馬力 (ps)": 735.5,
+                    "英熱單位/小時 (BTU/h)": 0.293071,
+                    "卡路里/秒 (cal/s)": 4.184
+                }
+            },
+            pressure: {
+                units: {
+                    "帕斯卡 (Pa)": 1,
+                    "千帕 (kPa)": 1000,
+                    "百萬帕 (MPa)": 1000000,
+                    "巴 (bar)": 100000,
+                    "磅/平方英吋 (psi)": 6894.76,
+                    "標準大氣壓 (atm)": 101325,
+                    "毫米汞柱 (mmHg)": 133.322
+                }
+            },
+            force: {
+                units: {
+                    "牛頓 (N)": 1,
+                    "千牛頓 (kN)": 1000,
+                    "公斤力 (kgf)": 9.80665,
+                    "公克壓力 (gf)": 0.00980665,
+                    "磅力 (lbf)": 4.44822,
+                    "達因 (dyn)": 0.00001
+                }
+            },
+            thermal: {
+                units: {
+                    "W/(m·K)": 1,
+                    "W/(m·°C)": 1,
+                    "cal/(cm·s·°C)": 418.68,
+                    "kcal/(m·h·°C)": 1.163,
+                    "BTU/(ft·h·°F)": 1.7307
+                }
+            },
+            flow: {
+                units: {
+                    "立方公尺/小時 (m³/h)": 1,
+                    "立方公尺/分鐘 (m³/min)": 60,
+                    "公升/分鐘 (L/min)": 0.06,
+                    "公升/秒 (L/s)": 3.6,
+                    "立方英呎/分鐘 (CFM)": 1.699
+                }
+            },
+            volume: {
+                units: {
+                    "立方公尺 (m³)": 1000,
+                    "公升 (L)": 1,
+                    "毫升 (ml)": 0.001,
+                    "加侖 (US gal)": 3.78541,
+                    "立方英吋 (in³)": 0.016387,
+                    "立方英呎 (ft³)": 28.3168
+                }
+            },
+            weight: {
+                units: {
+                    "公克 (g)": 0.001,
+                    "公斤 (kg)": 1,
+                    "公噸 (t)": 1000,
+                    "磅 (lb)": 0.453592,
+                    "盎司 (oz)": 0.0283495
+                }
+            },
+            length: {
+                units: {
+                    "公尺 (m)": 1,
+                    "公分 (cm)": 0.01,
+                    "公釐 (mm)": 0.001,
+                    "公里 (km)": 1000,
+                    "英吋 (in)": 0.0254,
+                    "英呎 (ft)": 0.3048,
+                    "碼 (yd)": 0.9144,
+                    "英里 (mi)": 1609.34
+                }
+            }
+        };
+
+        let currentCategory = 'heat';
+
+        function switchCategory(cat) {
+            currentCategory = cat;
+            
+            // 更新 UI 狀態
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('bg-[#222]');
+            });
+            const activeBtn = document.getElementById(`tab-${cat}`);
+            activeBtn.classList.add('tab-active');
+            activeBtn.classList.remove('bg-[#222]');
+
+            const fromSelect = document.getElementById('fromUnit');
+            const toSelect = document.getElementById('toUnit');
+            const units = unitData[cat].units;
+
+            fromSelect.innerHTML = '';
+            toSelect.innerHTML = '';
+
+            Object.keys(units).forEach((unit, index) => {
+                const opt1 = document.createElement('option');
+                opt1.value = unit;
+                opt1.textContent = unit;
+                fromSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = unit;
+                opt2.textContent = unit;
+                // 預設選中第二個單位作為目標
+                if(index === 1) opt2.selected = true;
+                toSelect.appendChild(opt2);
+            });
+
+            convert();
+        }
+
+        function convert() {
+            const val = parseFloat(document.getElementById('inputValue').value);
+            const from = document.getElementById('fromUnit').value;
+            const to = document.getElementById('toUnit').value;
+            
+            if (isNaN(val)) {
+                document.getElementById('resultDisplay').textContent = "0.00";
+                return;
+            }
+
+            const units = unitData[currentCategory].units;
+            const baseValue = val * units[from];
+            const result = baseValue / units[to];
+
+            // 格式化數字輸出
+            let formattedResult;
+            if (Number.isInteger(result)) {
+                formattedResult = result;
+            } else {
+                // 如果是極小或極大數，使用科學記號
+                if (Math.abs(result) < 0.00001 || Math.abs(result) > 100000000) {
+                    formattedResult = result.toExponential(4);
+                } else {
+                    // 最多保留 8 位小數並去除尾端 0
+                    formattedResult = parseFloat(result.toFixed(8)).toString();
+                }
+            }
+            
+            document.getElementById('resultDisplay').textContent = formattedResult;
+        }
+
+        window.onload = () => {
+            switchCategory('heat');
+        };
+    </script>
+</body>
+</html>
