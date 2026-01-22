@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工業常用單位轉換 v2.6</title>
+    <title>工業常用單位轉換 v2.9</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
@@ -29,6 +29,11 @@
             color: #000;
             clip-path: polygon(0% 0%, 90% 0%, 100% 100%, 0% 100%);
             font-weight: bold;
+        }
+
+        .page-btn-active {
+            border-bottom: 2px solid #f59e0b;
+            color: #f59e0b;
         }
 
         .lcd-display {
@@ -57,17 +62,23 @@
 </head>
 <body class="p-4 md:p-8">
     <div class="max-w-5xl mx-auto">
-        <header class="mb-10 flex flex-col items-center">
+        <header class="mb-6 flex flex-col items-center">
             <div class="bg-black px-6 py-2 border-l-4 border-r-4 border-yellow-500 mb-2">
                 <h1 class="text-2xl md:text-4xl font-black tracking-tighter text-yellow-500 uppercase">
-                    Industry Unit Converter v2.6
+                    Industry Unit Converter v2.9
                 </h1>
             </div>
-            <p class="text-xs tracking-[0.3em] text-gray-500 uppercase">System Status: Operational // Live Calculation Mode</p>
+            <p class="text-xs tracking-[0.3em] text-gray-500 uppercase">System Status: Operational // Page Navigation Enabled</p>
         </header>
 
-        <!-- 類別切換導覽 -->
-        <nav class="flex overflow-x-auto no-scrollbar gap-1 mb-0 px-2">
+        <!-- 分頁切換器 -->
+        <div class="flex gap-4 mb-4 px-2 border-b border-[#333]">
+            <button onclick="switchPage(1)" id="page1-btn" class="pb-2 text-sm font-bold transition-all page-btn-active uppercase tracking-widest">Page 01: Core</button>
+            <button onclick="switchPage(2)" id="page2-btn" class="pb-2 text-sm font-bold transition-all text-gray-600 hover:text-gray-300 uppercase tracking-widest">Page 02: Basic</button>
+        </div>
+
+        <!-- 類別切換導覽 Page 1 -->
+        <nav id="nav-page1" class="flex overflow-x-auto no-scrollbar gap-1 mb-0 px-2">
             <button onclick="switchCategory('heat')" id="tab-heat" class="px-6 py-2 text-sm whitespace-nowrap transition-all tab-active">熱量 ENERGY</button>
             <button onclick="switchCategory('power')" id="tab-power" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">功率 POWER</button>
             <button onclick="switchCategory('pressure')" id="tab-pressure" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">壓力 PRESS</button>
@@ -75,13 +86,16 @@
             <button onclick="switchCategory('thermal')" id="tab-thermal" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">導熱係數K</button>
             <button onclick="switchCategory('flow')" id="tab-flow" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">流量 FLOW</button>
             <button onclick="switchCategory('velocity')" id="tab-velocity" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">流速 VELOCITY</button>
+        </nav>
+
+        <!-- 類別切換導覽 Page 2 -->
+        <nav id="nav-page2" class="hidden flex overflow-x-auto no-scrollbar gap-1 mb-0 px-2">
             <button onclick="switchCategory('volume')" id="tab-volume" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">體積 VOL</button>
             <button onclick="switchCategory('weight')" id="tab-weight" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">重量 MASS</button>
             <button onclick="switchCategory('length')" id="tab-length" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">長度 LEN</button>
         </nav>
 
         <main class="industrial-panel p-6 md:p-10 relative overflow-hidden">
-            <!-- 裝飾用網格線 -->
             <div class="absolute top-0 right-0 p-2 opacity-20 pointer-events-none">
                 <svg width="100" height="100" viewBox="0 0 100 100">
                     <path d="M0 0 L100 0 L100 100" fill="none" stroke="white" stroke-width="0.5"/>
@@ -90,7 +104,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <!-- 輸入區域 -->
                 <div class="flex flex-col space-y-6">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Input Parameters</label>
@@ -105,12 +118,10 @@
                         <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Source Unit</label>
                         <select id="fromUnit" class="w-full px-4 py-3 rounded cursor-pointer appearance-none"
                                 onchange="convert()">
-                            <!-- 動態填充 -->
                         </select>
                     </div>
                 </div>
 
-                <!-- 輸出區域 -->
                 <div class="flex flex-col space-y-6">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">System Output</label>
@@ -123,18 +134,16 @@
                         <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Target Unit</label>
                         <select id="toUnit" class="w-full px-4 py-3 rounded cursor-pointer appearance-none"
                                 onchange="convert()">
-                            <!-- 動態填充 -->
                         </select>
                     </div>
                 </div>
             </div>
 
-            <!-- 底部裝飾線 -->
             <div class="mt-8 pt-6 border-t border-[#333] flex justify-between items-center opacity-50">
                 <div class="text-[10px] tracking-tighter">CREATOR: RANDY CHEN</div>
+                <div id="status-display" class="text-[10px] text-yellow-500">READY</div>
                 <div class="flex gap-1">
                     <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <div class="w-2 h-2 bg-gray-700 rounded-full"></div>
                     <div class="w-2 h-2 bg-gray-700 rounded-full"></div>
                 </div>
             </div>
@@ -143,134 +152,62 @@
         <footer class="mt-8 flex justify-between items-center text-[10px] text-gray-600 uppercase tracking-widest px-4">
             <div>Auth: Thermal0906</div>
             <div>Ref: ISO-9001-STND</div>
-            <div>Log: 0x8824_CONV</div>
+            <div>Log: 0x8824_V2.9</div>
         </footer>
     </div>
 
     <script>
-        // 阻擋右鍵選單
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
         }, false);
 
         const unitData = {
-            heat: {
-                units: {
-                    "焦耳 (J)": 1,
-                    "千焦耳 (kJ)": 1000,
-                    "卡路里 (cal)": 4.184,
-                    "千卡 (kcal)": 4184,
-                    "英熱單位 (BTU)": 1055.06,
-                    "瓦特小時 (Wh)": 3600,
-                    "千瓦小時 (kWh)": 3600000
-                }
-            },
-            power: {
-                units: {
-                    "瓦特 (W)": 1,
-                    "千瓦 (kW)": 1000,
-                    "馬力 (hp)": 745.7,
-                    "公制馬力 (ps)": 735.5,
-                    "英熱單位/小時 (BTU/h)": 0.293071,
-                    "卡路里/秒 (cal/s)": 4.184
-                }
-            },
-            pressure: {
-                units: {
-                    "帕斯卡 (Pa)": 1,
-                    "千帕 (kPa)": 1000,
-                    "百萬帕 (MPa)": 1000000,
-                    "巴 (bar)": 100000,
-                    "磅/平方英吋 (psi)": 6894.76,
-                    "標準大氣壓 (atm)": 101325,
-                    "毫米汞柱 (mmHg)": 133.322
-                }
-            },
-            force: {
-                units: {
-                    "牛頓 (N)": 1,
-                    "千牛頓 (kN)": 1000,
-                    "公斤力 (kgf)": 9.80665,
-                    "公克壓力 (gf)": 0.00980665,
-                    "磅力 (lbf)": 4.44822,
-                    "達因 (dyn)": 0.00001
-                }
-            },
-            thermal: {
-                units: {
-                    "W/(m·K)": 1,
-                    "W/(m·°C)": 1,
-                    "cal/(cm·s·°C)": 418.68,
-                    "kcal/(m·h·°C)": 1.163,
-                    "BTU/(ft·h·°F)": 1.7307
-                }
-            },
-            flow: {
-                units: {
-                    "立方公尺/小時 (m³/h)": 1,
-                    "立方公尺/分鐘 (m³/min)": 60,
-                    "公升/分鐘 (L/min)": 0.06,
-                    "公升/秒 (L/s)": 3.6,
-                    "立方英呎/分鐘 (CFM)": 1.699
-                }
-            },
-            velocity: {
-                units: {
-                    "公尺/秒 (m/s)": 1,
-                    "公尺/分鐘 (m/min)": 1/60,
-                    "公里/小時 (km/h)": 1/3.6,
-                    "英呎/秒 (ft/s)": 0.3048,
-                    "英呎/分鐘 (ft/min)": 0.3048/60,
-                    "英里/小時 (mph)": 0.44704,
-                    "節 (knot)": 0.514444
-                }
-            },
-            volume: {
-                units: {
-                    "立方公尺 (m³)": 1000,
-                    "公升 (L)": 1,
-                    "毫升 (ml)": 0.001,
-                    "加侖 (US gal)": 3.78541,
-                    "立方英吋 (in³)": 0.016387,
-                    "立方英呎 (ft³)": 28.3168
-                }
-            },
-            weight: {
-                units: {
-                    "公克 (g)": 0.001,
-                    "公斤 (kg)": 1,
-                    "公噸 (t)": 1000,
-                    "磅 (lb)": 0.453592,
-                    "盎司 (oz)": 0.0283495
-                }
-            },
-            length: {
-                units: {
-                    "公尺 (m)": 1,
-                    "公分 (cm)": 0.01,
-                    "公釐 (mm)": 0.001,
-                    "公里 (km)": 1000,
-                    "英吋 (in)": 0.0254,
-                    "英呎 (ft)": 0.3048,
-                    "碼 (yd)": 0.9144,
-                    "英里 (mi)": 1609.34
-                }
-            }
+            heat: { units: { "焦耳 (J)": 1, "千焦耳 (kJ)": 1000, "卡路里 (cal)": 4.184, "千卡 (kcal)": 4184, "英熱單位 (BTU)": 1055.06, "瓦特小時 (Wh)": 3600, "千瓦小時 (kWh)": 3600000 } },
+            power: { units: { "瓦特 (W)": 1, "千瓦 (kW)": 1000, "馬力 (hp)": 745.7, "公制馬力 (ps)": 735.5, "英熱單位/小時 (BTU/h)": 0.293071, "卡路里/秒 (cal/s)": 4.184 } },
+            pressure: { units: { "帕斯卡 (Pa)": 1, "千帕 (kPa)": 1000, "百萬帕 (MPa)": 1000000, "巴 (bar)": 100000, "磅/平方英吋 (psi)": 6894.76, "標準大氣壓 (atm)": 101325, "毫米汞柱 (mmHg)": 133.322, "英寸水柱 (inH2O)": 249.089 } },
+            force: { units: { "牛頓 (N)": 1, "千牛頓 (kN)": 1000, "公斤力 (kgf)": 9.80665, "公克壓力 (gf)": 0.00980665, "磅力 (lbf)": 4.44822, "達因 (dyn)": 0.00001 } },
+            thermal: { units: { "W/(m·K)": 1, "W/(m·°C)": 1, "cal/(cm·s·°C)": 418.68, "kcal/(m·h·°C)": 1.163, "BTU/(ft·h·°F)": 1.7307 } },
+            flow: { units: { "立方公尺/小時 (m³/h)": 1, "立方公尺/分鐘 (m³/min)": 60, "公升/分鐘 (L/min)": 0.06, "公升/秒 (L/s)": 3.6, "立方英呎/分鐘 (CFM)": 1.699 } },
+            velocity: { units: { "公尺/秒 (m/s)": 1, "公尺/分鐘 (m/min)": 1/60, "公里/小時 (km/h)": 1/3.6, "英呎/秒 (ft/s)": 0.3048, "英呎/分鐘 (ft/min)": 0.3048/60, "英里/小時 (mph)": 0.44704, "節 (knot)": 0.514444 } },
+            volume: { units: { "立方公尺 (m³)": 1000, "公升 (L)": 1, "毫升 (ml)": 0.001, "加侖 (US gal)": 3.78541, "立方英吋 (in³)": 0.016387, "立方英呎 (ft³)": 28.3168 } },
+            weight: { units: { "公克 (g)": 0.001, "公斤 (kg)": 1, "公噸 (t)": 1000, "磅 (lb)": 0.453592, "盎司 (oz)": 0.0283495 } },
+            length: { units: { "公尺 (m)": 1, "公分 (cm)": 0.01, "公釐 (mm)": 0.001, "公里 (km)": 1000, "英吋 (in)": 0.0254, "英呎 (ft)": 0.3048, "碼 (yd)": 0.9144, "英里 (mi)": 1609.34 } }
         };
 
         let currentCategory = 'heat';
 
+        function switchPage(page) {
+            document.getElementById('nav-page1').classList.add('hidden');
+            document.getElementById('nav-page2').classList.add('hidden');
+            document.getElementById('page1-btn').classList.remove('page-btn-active', 'text-f59e0b');
+            document.getElementById('page2-btn').classList.remove('page-btn-active', 'text-f59e0b');
+            document.getElementById('page1-btn').classList.add('text-gray-600');
+            document.getElementById('page2-btn').classList.add('text-gray-600');
+
+            if (page === 1) {
+                document.getElementById('nav-page1').classList.remove('hidden');
+                document.getElementById('page1-btn').classList.add('page-btn-active');
+                document.getElementById('page1-btn').classList.remove('text-gray-600');
+                switchCategory('heat');
+            } else {
+                document.getElementById('nav-page2').classList.remove('hidden');
+                document.getElementById('page2-btn').classList.add('page-btn-active');
+                document.getElementById('page2-btn').classList.remove('text-gray-600');
+                switchCategory('volume');
+            }
+        }
+
         function switchCategory(cat) {
             currentCategory = cat;
-            
-            // 更新 UI 狀態
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.classList.remove('tab-active');
                 btn.classList.add('bg-[#222]');
             });
             const activeBtn = document.getElementById(`tab-${cat}`);
-            activeBtn.classList.add('tab-active');
-            activeBtn.classList.remove('bg-[#222]');
+            if (activeBtn) {
+                activeBtn.classList.add('tab-active');
+                activeBtn.classList.remove('bg-[#222]');
+            }
 
             const fromSelect = document.getElementById('fromUnit');
             const toSelect = document.getElementById('toUnit');
@@ -281,18 +218,16 @@
 
             Object.keys(units).forEach((unit, index) => {
                 const opt1 = document.createElement('option');
-                opt1.value = unit;
-                opt1.textContent = unit;
+                opt1.value = unit; opt1.textContent = unit;
                 fromSelect.appendChild(opt1);
 
                 const opt2 = document.createElement('option');
-                opt2.value = unit;
-                opt2.textContent = unit;
-                // 預設選中第二個單位作為目標
+                opt2.value = unit; opt2.textContent = unit;
                 if(index === 1) opt2.selected = true;
                 toSelect.appendChild(opt2);
             });
-
+            
+            document.getElementById('status-display').textContent = `MODE: ${cat.toUpperCase()}`;
             convert();
         }
 
@@ -310,25 +245,21 @@
             const baseValue = val * units[from];
             const result = baseValue / units[to];
 
-            // 格式化數字輸出
             let formattedResult;
             if (Number.isInteger(result)) {
                 formattedResult = result;
             } else {
-                // 如果是極小或極大數，使用科學記號
                 if (Math.abs(result) < 0.0000001 || Math.abs(result) > 100000000) {
                     formattedResult = result.toExponential(6);
                 } else {
-                    // 最多保留 8 位小數並去除尾端 0
                     formattedResult = parseFloat(result.toFixed(8)).toString();
                 }
             }
-            
             document.getElementById('resultDisplay').textContent = formattedResult;
         }
 
         window.onload = () => {
-            switchCategory('heat');
+            switchPage(1);
         };
     </script>
 </body>
