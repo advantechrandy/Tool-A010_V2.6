@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工業常用單位轉換</title>
+    <title>工業常用單位轉換 v2.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
@@ -60,7 +60,7 @@
         <header class="mb-10 flex flex-col items-center">
             <div class="bg-black px-6 py-2 border-l-4 border-r-4 border-yellow-500 mb-2">
                 <h1 class="text-2xl md:text-4xl font-black tracking-tighter text-yellow-500 uppercase">
-                    Industry Unit Converter v2.5
+                    Industry Unit Converter v2.6
                 </h1>
             </div>
             <p class="text-xs tracking-[0.3em] text-gray-500 uppercase">System Status: Operational // Live Calculation Mode</p>
@@ -74,6 +74,7 @@
             <button onclick="switchCategory('force')" id="tab-force" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">力量 FORCE</button>
             <button onclick="switchCategory('thermal')" id="tab-thermal" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">導熱係數K</button>
             <button onclick="switchCategory('flow')" id="tab-flow" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">流量 FLOW</button>
+            <button onclick="switchCategory('velocity')" id="tab-velocity" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">流速 VELOCITY</button>
             <button onclick="switchCategory('volume')" id="tab-volume" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">體積 VOL</button>
             <button onclick="switchCategory('weight')" id="tab-weight" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">重量 MASS</button>
             <button onclick="switchCategory('length')" id="tab-length" class="px-6 py-2 text-sm whitespace-nowrap transition-all bg-[#222] hover:bg-[#333]">長度 LEN</button>
@@ -130,7 +131,7 @@
 
             <!-- 底部裝飾線 -->
             <div class="mt-8 pt-6 border-t border-[#333] flex justify-between items-center opacity-50">
-                <div class="text-[10px] tracking-tighter">Creator: Randy Chen</div>
+                <div class="text-[10px] tracking-tighter">CREATOR: RANDY CHEN</div>
                 <div class="flex gap-1">
                     <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     <div class="w-2 h-2 bg-gray-700 rounded-full"></div>
@@ -142,7 +143,7 @@
         <footer class="mt-8 flex justify-between items-center text-[10px] text-gray-600 uppercase tracking-widest px-4">
             <div>Auth: Thermal0906</div>
             <div>Ref: ISO-9001-STND</div>
-            <div>Log: 0x8823_CONV</div>
+            <div>Log: 0x8824_CONV</div>
         </footer>
     </div>
 
@@ -211,6 +212,17 @@
                     "公升/分鐘 (L/min)": 0.06,
                     "公升/秒 (L/s)": 3.6,
                     "立方英呎/分鐘 (CFM)": 1.699
+                }
+            },
+            velocity: {
+                units: {
+                    "公尺/秒 (m/s)": 1,
+                    "公尺/分鐘 (m/min)": 1/60,
+                    "公里/小時 (km/h)": 1/3.6,
+                    "英呎/秒 (ft/s)": 0.3048,
+                    "英呎/分鐘 (ft/min)": 0.3048/60,
+                    "英里/小時 (mph)": 0.44704,
+                    "節 (knot)": 0.514444
                 }
             },
             volume: {
@@ -304,8 +316,8 @@
                 formattedResult = result;
             } else {
                 // 如果是極小或極大數，使用科學記號
-                if (Math.abs(result) < 0.00001 || Math.abs(result) > 100000000) {
-                    formattedResult = result.toExponential(4);
+                if (Math.abs(result) < 0.0000001 || Math.abs(result) > 100000000) {
+                    formattedResult = result.toExponential(6);
                 } else {
                     // 最多保留 8 位小數並去除尾端 0
                     formattedResult = parseFloat(result.toFixed(8)).toString();
@@ -320,5 +332,4 @@
         };
     </script>
 </body>
-
 </html>
